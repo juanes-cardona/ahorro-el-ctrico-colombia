@@ -1,0 +1,81 @@
+import { Button } from "@/components/ui/button";
+import { Zap, Leaf, TrendingDown } from "lucide-react";
+
+interface HeroSectionProps {
+  onCalculateClick: () => void;
+}
+
+export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
+  return (
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtOC44MzcgNy4xNjMtMTYgMTYtMTZzMTYgNy4xNjMgMTYgMTYtNy4xNjMgMTYtMTYgMTYtMTYtNy4xNjMtMTYtMTZ6TTAgMTZjMC04LjgzNyA3LjE2My0xNiAxNi0xNnMxNiA3LjE2MyAxNiAxNi03LjE2MyAxNi0xNiAxNi0xNi03LjE2My0xNi0xNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30"></div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6 animate-fade-in">
+            <Leaf className="w-4 h-4" />
+            <span className="text-sm font-medium">Movilidad Sostenible en Colombia</span>
+          </div>
+
+          {/* Main heading */}
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+            ¿Cuánto podrías ahorrar en impuestos con un{" "}
+            <span className="text-white/90 underline decoration-wavy decoration-white/40">
+              vehículo eléctrico
+            </span>?
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            En Colombia existen beneficios tributarios para quienes invierten en movilidad eléctrica 
+            y tecnologías de energías limpias. Descubre cuánto podrías ahorrar.
+          </p>
+
+          {/* CTA Button */}
+          <Button 
+            onClick={onCalculateClick}
+            size="lg"
+            className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in"
+            style={{ animationDelay: "0.3s" }}
+          >
+            <Zap className="w-5 h-5 mr-2" />
+            Calcular mi posible beneficio
+          </Button>
+
+          {/* Benefits preview */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            {[
+              { icon: TrendingDown, text: "Reducción de IVA" },
+              { icon: Leaf, text: "Deducciones fiscales" },
+              { icon: Zap, text: "Beneficios locales" },
+            ].map((benefit, index) => (
+              <div key={index} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <benefit.icon className="w-8 h-8 mb-3 mx-auto" />
+                <p className="font-medium">{benefit.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out forwards;
+          opacity: 0;
+        }
+      `}</style>
+    </section>
+  );
+};
