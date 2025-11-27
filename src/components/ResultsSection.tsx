@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, TrendingUp, FileText, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, TrendingUp, FileText, AlertCircle, MessageCircle } from "lucide-react";
 
 interface FormData {
   nombre: string;
@@ -234,6 +235,24 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
               Habla con tu contador o asesor tributario para evaluar cómo estos beneficios 
               aplican específicamente a tu caso y maximiza tu ahorro.
             </p>
+            
+            {/* Botón de WhatsApp */}
+            <Button
+              size="lg"
+              className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 mb-6"
+              onClick={() => {
+                // Reemplazar con el número de WhatsApp de atención al cliente
+                const phoneNumber = "573001234567"; // Formato: código país + número sin +
+                const message = encodeURIComponent(
+                  `Hola, me interesa conocer más sobre los beneficios tributarios de vehículos eléctricos. Mi estimación fue de ${formatearCOP(beneficioEstimado)}.`
+                );
+                window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+              }}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Contáctanos por WhatsApp
+            </Button>
+            
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
               <AlertCircle className="w-5 h-5" />
               <span className="font-medium">La normatividad colombiana premia a quienes le apuestan a la movilidad sostenible</span>
