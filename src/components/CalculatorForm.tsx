@@ -12,6 +12,8 @@ import { Calculator } from "lucide-react";
 const formSchema = z.object({
   nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(100, "El nombre es muy largo"),
   email: z.string().email("Correo electrónico inválido").max(255, "El correo es muy largo"),
+  cedulaNit: z.string().min(5, "Ingresa un documento válido").max(20, "El documento es muy largo"),
+  celular: z.string().min(10, "El celular debe tener al menos 10 dígitos").max(15, "El celular es muy largo"),
   ciudad: z.string().min(2, "Selecciona una ciudad"),
   tipoCliente: z.enum(["natural", "empresa"], { required_error: "Selecciona el tipo de cliente" }),
   ingresosMensuales: z.number().min(0, "Los ingresos deben ser positivos"),
@@ -19,7 +21,6 @@ const formSchema = z.object({
   aportesFPV: z.number().min(0, "Los aportes no pueden ser negativos"),
   aportesAFC: z.number().min(0, "Los aportes no pueden ser negativos"),
   otrasDeducciones: z.number().min(0, "Las deducciones no pueden ser negativas"),
-  usoProductivo: z.enum(["si", "no"], { required_error: "Selecciona una opción" }),
   valorVehiculo: z.number().min(1000000, "El valor del vehículo debe ser al menos $1,000,000").max(1000000000, "El valor es muy alto"),
 });
 
@@ -116,6 +117,32 @@ export const CalculatorForm = ({ onSubmit }: CalculatorFormProps) => {
                     className={errors.email ? "border-destructive" : ""}
                   />
                   {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="cedulaNit">Cédula de Ciudadanía / NIT *</Label>
+                  <Input
+                    id="cedulaNit"
+                    type="text"
+                    value={formData.cedulaNit || ""}
+                    onChange={(e) => updateField("cedulaNit", e.target.value)}
+                    className={errors.cedulaNit ? "border-destructive" : ""}
+                    placeholder="Ej: 1234567890"
+                  />
+                  {errors.cedulaNit && <p className="text-sm text-destructive mt-1">{errors.cedulaNit}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="celular">Celular *</Label>
+                  <Input
+                    id="celular"
+                    type="tel"
+                    value={formData.celular || ""}
+                    onChange={(e) => updateField("celular", e.target.value)}
+                    className={errors.celular ? "border-destructive" : ""}
+                    placeholder="Ej: 3001234567"
+                  />
+                  {errors.celular && <p className="text-sm text-destructive mt-1">{errors.celular}</p>}
                 </div>
 
                 <div>
@@ -220,21 +247,7 @@ export const CalculatorForm = ({ onSubmit }: CalculatorFormProps) => {
                 <h3 className="text-lg font-semibold text-foreground">Información del Vehículo</h3>
                 
                 <div>
-                  <Label htmlFor="usoProductivo">¿Uso principalmente para actividades productivas o de negocio? *</Label>
-                  <Select value={formData.usoProductivo} onValueChange={(value) => updateField("usoProductivo", value)}>
-                    <SelectTrigger className={errors.usoProductivo ? "border-destructive" : ""}>
-                      <SelectValue placeholder="Selecciona una opción" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="si">Sí</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.usoProductivo && <p className="text-sm text-destructive mt-1">{errors.usoProductivo}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="valorVehiculo">Valor Aproximado del Vehículo Eléctrico (COP) *</Label>
+                  <Label htmlFor="valorVehiculo">Valor Aproximado del Vehículo Eléctrico Sin IVA (COP) *</Label>
                   <Input
                     id="valorVehiculo"
                     type="number"
@@ -244,6 +257,9 @@ export const CalculatorForm = ({ onSubmit }: CalculatorFormProps) => {
                     className={errors.valorVehiculo ? "border-destructive" : ""}
                   />
                   {errors.valorVehiculo && <p className="text-sm text-destructive mt-1">{errors.valorVehiculo}</p>}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Ingresa el valor del vehículo antes de IVA
+                  </p>
                 </div>
               </div>
 
