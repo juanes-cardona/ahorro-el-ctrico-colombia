@@ -5,6 +5,8 @@ import { CheckCircle2, TrendingUp, FileText, AlertCircle, MessageCircle } from "
 interface FormData {
   nombre: string;
   email: string;
+  cedulaNit: string;
+  celular: string;
   ciudad: string;
   tipoCliente: "natural" | "empresa";
   ingresosMensuales: number;
@@ -12,7 +14,6 @@ interface FormData {
   aportesFPV: number;
   aportesAFC: number;
   otrasDeducciones: number;
-  usoProductivo: "si" | "no";
   valorVehiculo: number;
 }
 
@@ -39,9 +40,9 @@ const calcularBeneficio = (data: FormData): number => {
     porcentajeBeneficio += 0.03; // Empresas tienen más opciones de deducción
   }
   
-  // Ajuste por uso productivo
-  if (data.usoProductivo === "si") {
-    porcentajeBeneficio += 0.05; // Mayor beneficio si es para uso productivo
+  // Ajuste adicional por tipo de cliente empresa (mayor capacidad de deducción)
+  if (data.tipoCliente === "empresa") {
+    porcentajeBeneficio += 0.05;
   }
   
   // Ajuste por deducciones actuales (si ya tiene deducciones, puede aprovechar más)
@@ -112,12 +113,12 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
                 <span className="font-medium">{formatearCOP(formData.ingresosMensuales * 12)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Valor del vehículo:</span>
+                <span className="text-muted-foreground">Valor del vehículo (sin IVA):</span>
                 <span className="font-medium">{formatearCOP(formData.valorVehiculo)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Uso productivo:</span>
-                <span className="font-medium">{formData.usoProductivo === "si" ? "Sí" : "No"}</span>
+                <span className="text-muted-foreground">Celular:</span>
+                <span className="font-medium">{formData.celular}</span>
               </div>
             </CardContent>
           </Card>

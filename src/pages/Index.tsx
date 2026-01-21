@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 interface FormData {
   nombre: string;
   email: string;
+  cedulaNit: string;
+  celular: string;
   ciudad: string;
   tipoCliente: "natural" | "empresa";
   ingresosMensuales: number;
@@ -14,7 +16,6 @@ interface FormData {
   aportesFPV: number;
   aportesAFC: number;
   otrasDeducciones: number;
-  usoProductivo: "si" | "no";
   valorVehiculo: number;
 }
 
