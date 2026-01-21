@@ -1,72 +1,46 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, TrendingUp, FileText, AlertCircle, MessageCircle } from "lucide-react";
-
-interface FormData {
-  nombre: string;
-  email: string;
-  cedulaNit: string;
-  celular: string;
-  ciudad: string;
-  tipoCliente: "natural" | "empresa";
-  ingresosMensuales: number;
-  dependientes: number;
-  aportesFPV: number;
-  aportesAFC: number;
-  otrasDeducciones: number;
-  valorVehiculo: number;
-}
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { 
+  CheckCircle2, 
+  TrendingUp, 
+  FileText, 
+  AlertCircle, 
+  MessageCircle, 
+  Calculator,
+  ArrowRight,
+  Lightbulb,
+  AlertTriangle
+} from "lucide-react";
+import { 
+  calculateTaxBenefit, 
+  formatCOP, 
+  formatUVT,
+  UVT_VALUE,
+  TaxCalculationResult 
+} from "@/lib/taxCalculations";
+import type { FormData } from "@/components/CalculatorForm";
 
 interface ResultsSectionProps {
   formData: FormData;
 }
 
-const calcularBeneficio = (data: FormData): number => {
-  const ingresosAnuales = data.ingresosMensuales * 12;
-  const deduccionesActuales = (data.aportesFPV * 12) + (data.aportesAFC * 12) + data.otrasDeducciones;
-  
-  // Porcentaje base de beneficio sobre el valor del vehículo
-  let porcentajeBeneficio = 0.15; // 15% base
-  
-  // Ajuste por nivel de ingresos (mayor ingreso, mayor capacidad de deducción)
-  if (ingresosAnuales > 100000000) { // Más de 100M anuales
-    porcentajeBeneficio += 0.05;
-  } else if (ingresosAnuales > 50000000) { // Más de 50M anuales
-    porcentajeBeneficio += 0.03;
-  }
-  
-  // Ajuste por tipo de cliente
-  if (data.tipoCliente === "empresa") {
-    porcentajeBeneficio += 0.03; // Empresas tienen más opciones de deducción
-  }
-  
-  // Ajuste adicional por tipo de cliente empresa (mayor capacidad de deducción)
-  if (data.tipoCliente === "empresa") {
-    porcentajeBeneficio += 0.05;
-  }
-  
-  // Ajuste por deducciones actuales (si ya tiene deducciones, puede aprovechar más)
-  if (deduccionesActuales > 10000000) {
-    porcentajeBeneficio += 0.02;
-  }
-  
-  // Beneficio base: porcentaje del valor del vehículo
-  let beneficioEstimado = data.valorVehiculo * porcentajeBeneficio;
-  
-  // Adicional: ahorro en IVA (aproximadamente 5% del valor del vehículo)
-  const ahorroIVA = data.valorVehiculo * 0.05;
-  beneficioEstimado += ahorroIVA;
-  
-  // Limitar el beneficio al 30% del valor del vehículo como máximo
-  const beneficioMaximo = data.valorVehiculo * 0.30;
-  
-  return Math.min(beneficioEstimado, beneficioMaximo);
-};
-
 export const ResultsSection = ({ formData }: ResultsSectionProps) => {
-  const beneficioEstimado = calcularBeneficio(formData);
-  const formatearCOP = (valor: number) => 
-    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
+  // Calcular resultados usando el nuevo módulo
+  const result: TaxCalculationResult = calculateTaxBenefit({
+    monthlyNetIncome: formData.ingresosMensuales,
+    otherDeductionsAnnual: formData.otrasDeducciones,
+    vehicleDeductionTotal: formData.valorVehiculo,
+    vehicleDeductionApplied: formData.deduccionVehiculoAplicada,
+    calculateOptimalDeduction: formData.calcularDeduccionOptima,
+  });
+
+  const getBracketColor = (rate: number) => {
+    if (rate === 0) return "text-green-600 bg-green-100";
+    if (rate === 0.19) return "text-blue-600 bg-blue-100";
+    if (rate === 0.28) return "text-orange-600 bg-orange-100";
+    return "text-red-600 bg-red-100";
+  };
 
   return (
     <section className="py-20 px-4 bg-gradient-card">
@@ -77,154 +51,264 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
           </div>
           <h2 className="text-4xl font-bold mb-4">Resultados de tu Estimación</h2>
           <p className="text-muted-foreground text-lg">
-            Basado en la información proporcionada
+            Basado en la tabla de renta colombiana (UVT {new Date().getFullYear()}: ${UVT_VALUE.toLocaleString('es-CO')})
           </p>
         </div>
 
-        {/* Resultado Principal */}
+        {/* Alertas */}
+        {result.alerts.length > 0 && (
+          <div className="space-y-3 mb-8">
+            {result.alerts.map((alert, index) => (
+              <Alert key={index} variant="destructive" className="bg-destructive/10 border-destructive/30">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{alert}</AlertDescription>
+              </Alert>
+            ))}
+          </div>
+        )}
+
+        {/* Resultado Principal - Ahorro */}
         <Card className="mb-8 shadow-medium border-2 border-primary/20">
           <CardContent className="pt-8 text-center">
-            <p className="text-lg text-muted-foreground mb-2">Tu posible ahorro anual en impuestos podría estar alrededor de:</p>
+            <p className="text-lg text-muted-foreground mb-2">Tu ahorro anual estimado en impuestos:</p>
             <p className="text-5xl md:text-6xl font-bold text-primary mb-4">
-              {formatearCOP(beneficioEstimado)}
+              {formatCOP(result.annualSavings)}
             </p>
-            <p className="text-sm text-muted-foreground">
-              Estimación aproximada - No constituye asesoría tributaria formal
+            
+            <div className="flex flex-wrap justify-center gap-4 mt-6">
+              <div className="bg-muted/50 rounded-lg px-4 py-2">
+                <p className="text-sm text-muted-foreground">Ahorro por cada $1.000.000</p>
+                <p className="text-xl font-semibold">{formatCOP(result.savingsPerMillionExact)}</p>
+              </div>
+              <div className={`rounded-lg px-4 py-2 ${getBracketColor(result.bracketWithoutVehicle.marginalRate)}`}>
+                <p className="text-sm opacity-80">Tasa marginal actual</p>
+                <p className="text-xl font-semibold">{result.bracketWithoutVehicle.bracketName}</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground mt-4">
+              Estimación basada en la tabla de renta - No constituye asesoría tributaria formal
             </p>
           </CardContent>
         </Card>
 
-        {/* Resumen de Datos */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <Card>
+        {/* Deducción Óptima Recomendada */}
+        {result.optimalDeduction && result.optimalDeduction.recommendedDeduction > 0 && (
+          <Card className="mb-8 bg-primary/5 border-primary/30">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary" />
-                Resumen de tu Información
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Lightbulb className="w-5 h-5" />
+                Deducción Óptima Recomendada
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Deducción recomendada este año</p>
+                    <p className="text-2xl font-bold text-primary">{formatCOP(result.optimalDeduction.recommendedDeduction)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Ahorro estimado con esta deducción</p>
+                    <p className="text-xl font-semibold text-green-600">{formatCOP(result.optimalDeduction.estimatedSavings)}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Nuevo tramo estimado</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getBracketColor(result.optimalDeduction.newBracket.marginalRate)}`}>
+                      {result.optimalDeduction.newBracket.bracketName}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Saldo para años siguientes</p>
+                    <p className="text-xl font-semibold">{formatCOP(result.optimalDeduction.remainingVehicleDeduction)}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-white/50 rounded-lg">
+                <p className="text-sm text-foreground flex items-start gap-2">
+                  <ArrowRight className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
+                  {result.optimalDeduction.reason}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Comparación de Escenarios */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Sin Vehículo */}
+          <Card className="border-muted">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                <Calculator className="w-5 h-5" />
+                Sin Deducción del Vehículo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Tipo de cliente:</span>
-                <span className="font-medium">{formData.tipoCliente === "natural" ? "Persona Natural" : "Empresa"}</span>
+                <span className="text-muted-foreground">Ingreso anual neto:</span>
+                <span className="font-medium">{formatCOP(result.annualNetIncome)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Ingresos anuales:</span>
-                <span className="font-medium">{formatearCOP(formData.ingresosMensuales * 12)}</span>
+                <span className="text-muted-foreground">Deducciones totales:</span>
+                <span className="font-medium">{formatCOP(result.totalDeductionsWithoutVehicle)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Valor del vehículo (sin IVA):</span>
-                <span className="font-medium">{formatearCOP(formData.valorVehiculo)}</span>
+              <div className="flex justify-between border-t pt-2">
+                <span className="text-muted-foreground">Renta líquida:</span>
+                <div className="text-right">
+                  <span className="font-medium block">{formatCOP(result.rentaLiquidaWithoutVehicleCOP)}</span>
+                  <span className="text-xs text-muted-foreground">{formatUVT(result.rentaLiquidaWithoutVehicleUVT)}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Celular:</span>
-                <span className="font-medium">{formData.celular}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Tramo:</span>
+                <span className={`px-2 py-1 rounded text-sm font-medium ${getBracketColor(result.bracketWithoutVehicle.marginalRate)}`}>
+                  {result.bracketWithoutVehicle.bracketName} ({result.bracketWithoutVehicle.uvtRange})
+                </span>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <span className="font-medium">Impuesto estimado:</span>
+                <div className="text-right">
+                  <span className="font-bold text-lg">{formatCOP(result.taxWithoutVehicleCOP)}</span>
+                  <span className="text-xs text-muted-foreground block">{formatUVT(result.taxWithoutVehicleUVT)}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Con Vehículo */}
+          <Card className="border-primary/30 bg-primary/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Componentes del Beneficio
+              <CardTitle className="flex items-center gap-2 text-primary">
+                <Calculator className="w-5 h-5" />
+                Con Deducción del Vehículo
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Reducción de IVA</p>
-                  <p className="text-sm text-muted-foreground">Tarifa preferencial en vehículos eléctricos</p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Ingreso anual neto:</span>
+                <span className="font-medium">{formatCOP(result.annualNetIncome)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Deducciones totales:</span>
+                <div className="text-right">
+                  <span className="font-medium block">{formatCOP(result.totalDeductionsWithVehicle)}</span>
+                  <span className="text-xs text-green-600">+{formatCOP(result.vehicleDeductionApplied)} vehículo</span>
                 </div>
               </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Deducciones fiscales</p>
-                  <p className="text-sm text-muted-foreground">Por inversión en energías limpias</p>
+              <div className="flex justify-between border-t pt-2">
+                <span className="text-muted-foreground">Renta líquida:</span>
+                <div className="text-right">
+                  <span className="font-medium block">{formatCOP(result.rentaLiquidaWithVehicleCOP)}</span>
+                  <span className="text-xs text-muted-foreground">{formatUVT(result.rentaLiquidaWithVehicleUVT)}</span>
                 </div>
               </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="font-medium">Beneficios locales</p>
-                  <p className="text-sm text-muted-foreground">Reducción en impuesto vehicular (según ciudad)</p>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Tramo:</span>
+                <span className={`px-2 py-1 rounded text-sm font-medium ${getBracketColor(result.bracketWithVehicle.marginalRate)}`}>
+                  {result.bracketWithVehicle.bracketName} ({result.bracketWithVehicle.uvtRange})
+                </span>
+              </div>
+              <div className="flex justify-between border-t pt-2">
+                <span className="font-medium">Impuesto estimado:</span>
+                <div className="text-right">
+                  <span className="font-bold text-lg text-primary">{formatCOP(result.taxWithVehicleCOP)}</span>
+                  <span className="text-xs text-muted-foreground block">{formatUVT(result.taxWithVehicleUVT)}</span>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Información Educativa */}
-        <Card className="mb-8 bg-primary/5">
+        {/* Información de Límites */}
+        <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Beneficios de la Movilidad Eléctrica en Colombia</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              Límites de Deducciones Aplicados
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-foreground">
-              En Colombia, la movilidad eléctrica se promueve activamente con diversos beneficios establecidos 
-              en la normatividad vigente, incluyendo la Ley 1715 de 2014 y la Ley 2099 de 2021:
+          <CardContent>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Límite máximo permitido</p>
+                <p className="text-lg font-semibold">{formatCOP(result.maxDeductionsLimitCOP)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {result.deductionsLimitReason === 'uvt' 
+                    ? `Limitado por 1340 UVT (${formatUVT(result.maxDeductionsLimitUVT)})`
+                    : `Limitado por 40% del ingreso neto anual`}
+                </p>
+              </div>
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">Deducciones usadas (sin vehículo)</p>
+                <p className="text-lg font-semibold">{formatCOP(result.totalDeductionsWithoutVehicle)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Espacio disponible: {formatCOP(Math.max(0, result.maxDeductionsLimitCOP - result.totalDeductionsWithoutVehicle))}
+                </p>
+              </div>
+              <div className="p-4 bg-primary/10 rounded-lg">
+                <p className="text-sm text-muted-foreground">Deducción vehículo aplicada</p>
+                <p className="text-lg font-semibold text-primary">{formatCOP(result.vehicleDeductionApplied)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Del total: {formatCOP(formData.valorVehiculo)}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tabla de Rangos UVT */}
+        <Card className="mb-8 bg-muted/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Tabla de Impuesto de Renta {new Date().getFullYear()}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-3">Rango UVT</th>
+                    <th className="text-left py-2 px-3">Rango COP</th>
+                    <th className="text-center py-2 px-3">Tasa</th>
+                    <th className="text-left py-2 px-3">Fórmula</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className={`border-b ${result.bracketWithoutVehicle.marginalRate === 0 ? 'bg-green-50' : ''}`}>
+                    <td className="py-2 px-3">0 - 1090</td>
+                    <td className="py-2 px-3">{formatCOP(0)} - {formatCOP(1090 * UVT_VALUE)}</td>
+                    <td className="text-center py-2 px-3"><span className="px-2 py-0.5 rounded bg-green-100 text-green-700">0%</span></td>
+                    <td className="py-2 px-3">$0</td>
+                  </tr>
+                  <tr className={`border-b ${result.bracketWithoutVehicle.marginalRate === 0.19 ? 'bg-blue-50' : ''}`}>
+                    <td className="py-2 px-3">&gt;1090 - 1700</td>
+                    <td className="py-2 px-3">&gt;{formatCOP(1090 * UVT_VALUE)} - {formatCOP(1700 * UVT_VALUE)}</td>
+                    <td className="text-center py-2 px-3"><span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700">19%</span></td>
+                    <td className="py-2 px-3">(Renta UVT - 1090) × 19%</td>
+                  </tr>
+                  <tr className={`border-b ${result.bracketWithoutVehicle.marginalRate === 0.28 ? 'bg-orange-50' : ''}`}>
+                    <td className="py-2 px-3">&gt;1700 - 4100</td>
+                    <td className="py-2 px-3">&gt;{formatCOP(1700 * UVT_VALUE)} - {formatCOP(4100 * UVT_VALUE)}</td>
+                    <td className="text-center py-2 px-3"><span className="px-2 py-0.5 rounded bg-orange-100 text-orange-700">28%</span></td>
+                    <td className="py-2 px-3">(Renta UVT - 1700) × 28% + 115.9 UVT</td>
+                  </tr>
+                  <tr className={`${result.bracketWithoutVehicle.marginalRate === 0.33 ? 'bg-red-50' : ''}`}>
+                    <td className="py-2 px-3">&gt;4100</td>
+                    <td className="py-2 px-3">&gt;{formatCOP(4100 * UVT_VALUE)}</td>
+                    <td className="text-center py-2 px-3"><span className="px-2 py-0.5 rounded bg-red-100 text-red-700">33%</span></td>
+                    <td className="py-2 px-3">(Renta UVT - 4100) × 33% + 787.9 UVT</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              UVT {new Date().getFullYear()}: ${UVT_VALUE.toLocaleString('es-CO')} COP
             </p>
-            
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">1</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Deducciones en Impuesto de Renta</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Posibles deducciones por inversiones en proyectos de energías limpias y eficiencia energética, 
-                    lo que incluye vehículos eléctricos destinados a actividades productivas.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">2</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Reducción de IVA</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Tarifa preferencial de IVA del 5% en la compra de ciertos vehículos eléctricos, 
-                    en comparación con el 19% aplicable a vehículos convencionales.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">3</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Aranceles Preferenciales</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Exención o reducción de aranceles en la importación de vehículos eléctricos y sus componentes.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">4</span>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">Beneficios Municipales</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Muchas ciudades colombianas ofrecen descuentos en el impuesto vehicular y otros beneficios 
-                    locales para propietarios de vehículos eléctricos.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t mt-6">
-              <p className="text-center text-lg font-medium text-foreground">
-                💚 Invertir en un vehículo eléctrico no solo cuida el planeta, también puede cuidar tu bolsillo.
-              </p>
-            </div>
           </CardContent>
         </Card>
 
@@ -237,15 +321,13 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
               aplican específicamente a tu caso y maximiza tu ahorro.
             </p>
             
-            {/* Botón de WhatsApp */}
             <Button
               size="lg"
               className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 mb-6"
               onClick={() => {
-                // Reemplazar con el número de WhatsApp de atención al cliente
-                const phoneNumber = "573001234567"; // Formato: código país + número sin +
+                const phoneNumber = "573001234567";
                 const message = encodeURIComponent(
-                  `Hola, me interesa conocer más sobre los beneficios tributarios de vehículos eléctricos. Mi estimación fue de ${formatearCOP(beneficioEstimado)}.`
+                  `Hola, me interesa conocer más sobre los beneficios tributarios de vehículos eléctricos. Mi estimación de ahorro fue de ${formatCOP(result.annualSavings)}.`
                 );
                 window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
               }}
@@ -265,9 +347,10 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
         <Card className="mt-8 bg-muted/50">
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground text-center">
-              <strong>Disclaimer:</strong> Esta herramienta es únicamente informativa y ofrece estimaciones aproximadas. 
-              No reemplaza la asesoría de un contador público o experto tributario ni constituye recomendación fiscal. 
-              La normatividad puede cambiar y la aplicación de los beneficios depende del perfil de cada contribuyente.
+              <strong>Disclaimer:</strong> Esta herramienta es únicamente informativa y ofrece estimaciones aproximadas 
+              basadas en la tabla de renta colombiana. No reemplaza la asesoría de un contador público o experto tributario 
+              ni constituye recomendación fiscal. La normatividad puede cambiar y la aplicación de los beneficios depende 
+              del perfil de cada contribuyente.
             </p>
           </CardContent>
         </Card>

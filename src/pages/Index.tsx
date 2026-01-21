@@ -1,23 +1,8 @@
 import { useState, useRef } from "react";
 import { HeroSection } from "@/components/HeroSection";
-import { CalculatorForm } from "@/components/CalculatorForm";
+import { CalculatorForm, FormData } from "@/components/CalculatorForm";
 import { ResultsSection } from "@/components/ResultsSection";
 import { useToast } from "@/hooks/use-toast";
-
-interface FormData {
-  nombre: string;
-  email: string;
-  cedulaNit: string;
-  celular: string;
-  ciudad: string;
-  tipoCliente: "natural" | "empresa";
-  ingresosMensuales: number;
-  dependientes: number;
-  aportesFPV: number;
-  aportesAFC: number;
-  otrasDeducciones: number;
-  valorVehiculo: number;
-}
 
 const Index = () => {
   const [showResults, setShowResults] = useState(false);
