@@ -315,10 +315,10 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
         {/* Call to Action */}
         <Card className="bg-gradient-hero text-white border-0">
           <CardContent className="pt-8 text-center">
-            <h3 className="text-2xl font-bold mb-4">¿Listo para dar el siguiente paso?</h3>
-            <p className="text-lg mb-6 text-white/90">
-              Habla con tu contador o asesor tributario para evaluar cómo estos beneficios 
-              aplican específicamente a tu caso y maximiza tu ahorro.
+            <h3 className="text-2xl font-bold mb-4">¿Quieres aplicar estos beneficios?</h3>
+            <p className="text-lg mb-6 text-white/90 max-w-2xl mx-auto">
+              Si deseas poder aplicar estos beneficios y asesorarte con nosotros, contáctanos a través 
+              de WhatsApp para estudiar tu caso y ayudarte a tramitar el certificado ante la UPME.
             </p>
             
             <Button
@@ -327,7 +327,7 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
               onClick={() => {
                 const phoneNumber = "573001234567";
                 const message = encodeURIComponent(
-                  `Hola, me interesa conocer más sobre los beneficios tributarios de vehículos eléctricos. Mi estimación de ahorro fue de ${formatCOP(result.annualSavings)}.`
+                  `Hola, me interesa conocer más sobre los beneficios tributarios de vehículos eléctricos y el trámite del certificado UPME. Mi estimación de ahorro fue de ${formatCOP(result.annualSavings)}.`
                 );
                 window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
               }}
@@ -338,7 +338,7 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
             
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3">
               <AlertCircle className="w-5 h-5" />
-              <span className="font-medium">La normatividad colombiana premia a quienes le apuestan a la movilidad sostenible</span>
+              <span className="font-medium">Te ayudamos con el trámite del certificado ante la UPME</span>
             </div>
           </CardContent>
         </Card>
