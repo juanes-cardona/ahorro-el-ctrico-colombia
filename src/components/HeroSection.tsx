@@ -68,7 +68,7 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
           {/* Benefits preview */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
             {[
-              { icon: TrendingDown, text: "Reducción de IVA" },
+              { icon: TrendingDown, text: "Devolución de IVA" },
               { icon: Leaf, text: "Deducciones fiscales" },
               { icon: Zap, text: "Beneficios locales" },
             ].map((benefit, index) => (
