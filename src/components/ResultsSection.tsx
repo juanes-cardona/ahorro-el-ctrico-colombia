@@ -325,7 +325,7 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
               size="lg"
               className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 mb-6"
               onClick={() => {
-                const phoneNumber = "573001234567";
+                const phoneNumber = "573505129703";
                 const message = encodeURIComponent(
                   `Hola, me interesa conocer más sobre los beneficios tributarios de vehículos eléctricos y el trámite del certificado UPME. Mi estimación de ahorro fue de ${formatCOP(result.annualSavings)}.`
                 );
