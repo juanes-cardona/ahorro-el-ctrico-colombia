@@ -15,6 +15,9 @@ export const UVT_VALUE = 49799;
 /** Límite máximo de deducciones en UVT */
 export const MAX_DEDUCTIONS_UVT = 1340;
 
+/** Límite máximo del 25% de renta exenta laboral en UVT */
+export const MAX_25_PERCENT_EXEMPTION_UVT = 790;
+
 /** Límite máximo de deducciones como porcentaje del ingreso neto anual */
 export const MAX_DEDUCTIONS_RATE = 0.40;
 
@@ -276,8 +279,11 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
   const totalDeductionsWithoutVehicle = otherDeductionsAnnual;
   
   // Calcular el 25% de renta exenta sobre el subtotal (ingreso - deducciones)
+  // Límite máximo: 790 UVT
   const subtotalWithoutVehicle = Math.max(0, annualNetIncome - totalDeductionsWithoutVehicle);
-  const exemption25PercentWithoutVehicle = include25Percent ? subtotalWithoutVehicle * 0.25 : 0;
+  const max25PercentLimit = MAX_25_PERCENT_EXEMPTION_UVT * UVT_VALUE;
+  const raw25PercentWithoutVehicle = include25Percent ? subtotalWithoutVehicle * 0.25 : 0;
+  const exemption25PercentWithoutVehicle = Math.min(raw25PercentWithoutVehicle, max25PercentLimit);
   
   // Total deducciones + 25% exento, limitado al tope
   const totalDeductionsAndExemptionsWithoutVehicle = Math.min(
@@ -320,8 +326,10 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
   const totalDeductionsWithVehicle = otherDeductionsAnnual + vehicleDeductionApplied;
   
   // Recalcular el 25% sobre el nuevo subtotal (con vehículo deducido)
+  // Límite máximo: 790 UVT
   const subtotalWithVehicle = Math.max(0, annualNetIncome - totalDeductionsWithVehicle);
-  const exemption25PercentWithVehicle = include25Percent ? subtotalWithVehicle * 0.25 : 0;
+  const raw25PercentWithVehicle = include25Percent ? subtotalWithVehicle * 0.25 : 0;
+  const exemption25PercentWithVehicle = Math.min(raw25PercentWithVehicle, max25PercentLimit);
   
   // Total deducciones + 25% exento, limitado al tope
   const totalDeductionsAndExemptionsWithVehicle = Math.min(
