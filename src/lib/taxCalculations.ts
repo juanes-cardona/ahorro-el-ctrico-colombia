@@ -33,6 +33,8 @@ export interface TaxCalculationInput {
   vehicleDeductionApplied?: number;
   /** Calcular deducción óptima anual (sí/no) */
   calculateOptimalDeduction: boolean;
+  /** Incluir el 25% de renta exenta laboral (por defecto: true) */
+  include25PercentExemption?: boolean;
 }
 
 export interface TaxBracketInfo {
@@ -56,6 +58,8 @@ export interface TaxCalculationResult {
   
   // Escenario SIN vehículo
   totalDeductionsWithoutVehicle: number;
+  exemption25PercentWithoutVehicle: number;
+  totalDeductionsAndExemptionsWithoutVehicle: number;
   rentaLiquidaWithoutVehicleCOP: number;
   rentaLiquidaWithoutVehicleUVT: number;
   taxWithoutVehicleCOP: number;
@@ -65,6 +69,8 @@ export interface TaxCalculationResult {
   // Escenario CON vehículo
   vehicleDeductionApplied: number;
   totalDeductionsWithVehicle: number;
+  exemption25PercentWithVehicle: number;
+  totalDeductionsAndExemptionsWithVehicle: number;
   rentaLiquidaWithVehicleCOP: number;
   rentaLiquidaWithVehicleUVT: number;
   taxWithVehicleCOP: number;
@@ -247,12 +253,13 @@ export function calculateOptimalDeduction(
  */
 export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationResult {
   const alerts: string[] = [];
+  const include25Percent = input.include25PercentExemption !== false; // Por defecto true
   
   // 1. Calcular ingreso neto anual
   const annualNetIncome = input.monthlyNetIncome * 12;
   const annualNetIncomeUVT = copToUVT(annualNetIncome);
   
-  // 2. Calcular límite máximo de deducciones
+  // 2. Calcular límite máximo de deducciones (40% o 1340 UVT)
   const limitByUVT = MAX_DEDUCTIONS_UVT * UVT_VALUE;
   const limitByRate = MAX_DEDUCTIONS_RATE * annualNetIncome;
   const maxDeductionsLimitCOP = Math.min(limitByUVT, limitByRate);
@@ -267,7 +274,18 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
   
   // 4. Escenario SIN vehículo
   const totalDeductionsWithoutVehicle = otherDeductionsAnnual;
-  const rentaLiquidaWithoutVehicleCOP = Math.max(0, annualNetIncome - totalDeductionsWithoutVehicle);
+  
+  // Calcular el 25% de renta exenta sobre el subtotal (ingreso - deducciones)
+  const subtotalWithoutVehicle = Math.max(0, annualNetIncome - totalDeductionsWithoutVehicle);
+  const exemption25PercentWithoutVehicle = include25Percent ? subtotalWithoutVehicle * 0.25 : 0;
+  
+  // Total deducciones + 25% exento, limitado al tope
+  const totalDeductionsAndExemptionsWithoutVehicle = Math.min(
+    totalDeductionsWithoutVehicle + exemption25PercentWithoutVehicle,
+    maxDeductionsLimitCOP
+  );
+  
+  const rentaLiquidaWithoutVehicleCOP = Math.max(0, annualNetIncome - totalDeductionsAndExemptionsWithoutVehicle);
   const rentaLiquidaWithoutVehicleUVT = copToUVT(rentaLiquidaWithoutVehicleCOP);
   const taxWithoutVehicleUVT = calculateTaxUVT(rentaLiquidaWithoutVehicleUVT);
   const taxWithoutVehicleCOP = taxWithoutVehicleUVT * UVT_VALUE;
@@ -280,7 +298,7 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
   if (input.calculateOptimalDeduction) {
     optimalDeduction = calculateOptimalDeduction(
       rentaLiquidaWithoutVehicleCOP,
-      otherDeductionsAnnual,
+      totalDeductionsAndExemptionsWithoutVehicle,
       maxDeductionsLimitCOP,
       input.vehicleDeductionTotal
     );
@@ -288,7 +306,7 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
   }
   
   // 6. Limitar deducción del vehículo al espacio disponible
-  const availableForVehicle = Math.max(0, maxDeductionsLimitCOP - otherDeductionsAnnual);
+  const availableForVehicle = Math.max(0, maxDeductionsLimitCOP - totalDeductionsAndExemptionsWithoutVehicle);
   if (vehicleDeductionApplied > availableForVehicle) {
     alerts.push(`La deducción del vehículo se limita a ${formatCOP(availableForVehicle)} por el tope de deducciones.`);
     vehicleDeductionApplied = availableForVehicle;
@@ -300,7 +318,18 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
   
   // 7. Escenario CON vehículo
   const totalDeductionsWithVehicle = otherDeductionsAnnual + vehicleDeductionApplied;
-  const rentaLiquidaWithVehicleCOP = Math.max(0, annualNetIncome - totalDeductionsWithVehicle);
+  
+  // Recalcular el 25% sobre el nuevo subtotal (con vehículo deducido)
+  const subtotalWithVehicle = Math.max(0, annualNetIncome - totalDeductionsWithVehicle);
+  const exemption25PercentWithVehicle = include25Percent ? subtotalWithVehicle * 0.25 : 0;
+  
+  // Total deducciones + 25% exento, limitado al tope
+  const totalDeductionsAndExemptionsWithVehicle = Math.min(
+    totalDeductionsWithVehicle + exemption25PercentWithVehicle,
+    maxDeductionsLimitCOP
+  );
+  
+  const rentaLiquidaWithVehicleCOP = Math.max(0, annualNetIncome - totalDeductionsAndExemptionsWithVehicle);
   const rentaLiquidaWithVehicleUVT = copToUVT(rentaLiquidaWithVehicleCOP);
   const taxWithVehicleUVT = calculateTaxUVT(rentaLiquidaWithVehicleUVT);
   const taxWithVehicleCOP = taxWithVehicleUVT * UVT_VALUE;
@@ -329,6 +358,8 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
     maxDeductionsLimitUVT: copToUVT(maxDeductionsLimitCOP),
     deductionsLimitReason,
     totalDeductionsWithoutVehicle,
+    exemption25PercentWithoutVehicle,
+    totalDeductionsAndExemptionsWithoutVehicle,
     rentaLiquidaWithoutVehicleCOP,
     rentaLiquidaWithoutVehicleUVT,
     taxWithoutVehicleCOP,
@@ -336,6 +367,8 @@ export function calculateTaxBenefit(input: TaxCalculationInput): TaxCalculationR
     bracketWithoutVehicle,
     vehicleDeductionApplied,
     totalDeductionsWithVehicle,
+    exemption25PercentWithVehicle,
+    totalDeductionsAndExemptionsWithVehicle,
     rentaLiquidaWithVehicleCOP,
     rentaLiquidaWithVehicleUVT,
     taxWithVehicleCOP,
