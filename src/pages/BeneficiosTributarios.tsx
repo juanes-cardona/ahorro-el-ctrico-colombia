@@ -105,9 +105,15 @@ const BeneficiosTributarios = () => {
                 <CheckCircle2 className="w-5 h-5 text-muted-foreground" />
                 1.4 Incentivo contable – Depreciación acelerada
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-3">
                 Los activos destinados a proyectos de FNCE o gestión eficiente de la energía pueden acogerse a <strong>depreciación acelerada</strong>, reduciendo más rápidamente la base gravable.
               </p>
+              <div className="bg-amber-100 border border-amber-300 rounded-md px-4 py-2 flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-amber-700 flex-shrink-0" />
+                <p className="text-sm text-amber-800 font-medium">
+                  Este beneficio aplica únicamente para <strong>Personas Jurídicas</strong> (empresas).
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
