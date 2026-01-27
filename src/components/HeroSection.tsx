@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Zap, Leaf, TrendingDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-electric-car.jpg";
 import ecoLogo from "@/assets/eco-logo.png";
 
@@ -66,16 +67,18 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
 
           {/* Benefits preview */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            {[
-              { icon: TrendingDown, text: "Devolución de IVA" },
-              { icon: Leaf, text: "Deducciones fiscales" },
-              { icon: Zap, text: "Beneficios locales" },
-            ].map((benefit, index) => (
-              <div key={index} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <benefit.icon className="w-8 h-8 mb-3 mx-auto" />
-                <p className="font-medium">{benefit.text}</p>
-              </div>
-            ))}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <TrendingDown className="w-8 h-8 mb-3 mx-auto" />
+              <p className="font-medium">Devolución de IVA</p>
+            </div>
+            <Link to="/beneficios-tributarios" className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+              <Leaf className="w-8 h-8 mb-3 mx-auto" />
+              <p className="font-medium">Beneficios tributarios</p>
+            </Link>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <Zap className="w-8 h-8 mb-3 mx-auto" />
+              <p className="font-medium">Beneficios locales</p>
+            </div>
           </div>
         </div>
       </div>
