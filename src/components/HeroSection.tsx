@@ -51,8 +51,6 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
           {/* Subtitle */}
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
             En Colombia existen beneficios tributarios para quienes invierten en vehículos eléctricos y soluciones de energías limpias. Para acceder a estas ventajas, es necesario realizar el trámite del Certificado de Beneficio Tributario ante la UPME, el cual valida tu proyecto o adquisición frente a los requisitos de la ley.
-            <br /><br />
-            Conoce cuánto podrías ahorrar y cómo completar correctamente la solicitud del certificado UPME para obtener tu deducción o exención tributaria.
           </p>
 
           {/* CTA Button */}
@@ -63,7 +61,7 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
             style={{ animationDelay: "0.3s" }}
           >
             <Zap className="w-5 h-5 mr-2" />
-            Calcular mi posible beneficio
+            Conoce cuál podría ser tu beneficio tributario
           </Button>
 
           {/* Benefits preview */}
