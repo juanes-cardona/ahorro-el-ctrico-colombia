@@ -1,8 +1,8 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Zap, Leaf, TrendingDown } from "lucide-react";
-import { Link } from "react-router-dom";
-import heroImage from "@/assets/hero-electric-car.jpg";
-import ecoLogo from "@/assets/eco-logo.png";
+import Link from "next/link";
 
 interface HeroSectionProps {
   onCalculateClick: () => void;
@@ -13,26 +13,26 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
       {/* Background Image */}
       <div className="absolute inset-0 opacity-20">
-        <img 
-          src={heroImage} 
-          alt="Vehículo eléctrico moderno" 
+        <img
+          src="/hero-electric-car.jpg"
+          alt="Vehículo eléctrico moderno"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-secondary/80"></div>
       </div>
-      
+
       {/* Decorative elements */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtOC44MzcgNy4xNjMtMTYgMTYtMTZzMTYgNy4xNjMgMTYgMTYtNy4xNjMgMTYtMTYgMTYtMTYtNy4xNjMtMTYtMTZ6TTAgMTZjMC04LjgzNyA3LjE2My0xNiAxNi0xNnMxNiA3LjE2MyAxNiAxNi03LjE2MyAxNi0xNiAxNi0xNi03LjE2My0xNi0xNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30"></div>
-      
+
       {/* Floating eco logo */}
       <div className="absolute top-20 right-10 animate-float hidden md:block">
-        <img 
-          src={ecoLogo} 
-          alt="Logo sostenibilidad" 
+        <img
+          src="/eco-logo.png"
+          alt="Logo sostenibilidad"
           className="w-32 h-32 opacity-30"
         />
       </div>
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center text-white">
           {/* Badge */}
@@ -55,7 +55,7 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
           </p>
 
           {/* CTA Button */}
-          <Button 
+          <Button
             onClick={onCalculateClick}
             size="lg"
             className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in"
@@ -71,7 +71,7 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
               <TrendingDown className="w-8 h-8 mb-3 mx-auto" />
               <p className="font-medium">Devolución de IVA</p>
             </div>
-            <Link to="/beneficios-tributarios" className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+            <Link href="/beneficios-tributarios" className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
               <Leaf className="w-8 h-8 mb-3 mx-auto" />
               <p className="font-medium">Beneficios tributarios</p>
             </Link>
@@ -82,34 +82,6 @@ export const HeroSection = ({ onCalculateClick }: HeroSectionProps) => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-          opacity: 0;
-        }
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-      `}</style>
     </section>
   );
 };

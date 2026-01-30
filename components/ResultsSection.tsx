@@ -1,39 +1,33 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  CheckCircle2, 
-  TrendingUp, 
-  FileText, 
-  AlertCircle, 
-  MessageCircle, 
+import {
+  CheckCircle2,
+  TrendingUp,
+  FileText,
+  AlertCircle,
+  MessageCircle,
   Calculator,
   ArrowRight,
   Lightbulb,
   AlertTriangle
 } from "lucide-react";
-import { 
-  calculateTaxBenefit, 
-  formatCOP, 
+import {
+  formatCOP,
   formatUVT,
   UVT_VALUE,
-  TaxCalculationResult 
+  TaxCalculationResult
 } from "@/lib/taxCalculations";
 import type { FormData } from "@/components/CalculatorForm";
 
 interface ResultsSectionProps {
   formData: FormData;
+  result: TaxCalculationResult;
 }
 
-export const ResultsSection = ({ formData }: ResultsSectionProps) => {
-  // Calcular resultados usando el nuevo módulo
-  const result: TaxCalculationResult = calculateTaxBenefit({
-    monthlyNetIncome: formData.ingresosMensuales,
-    otherDeductionsAnnual: formData.otrasDeducciones,
-    vehicleDeductionTotal: formData.valorVehiculo,
-    vehicleDeductionApplied: formData.deduccionVehiculoAplicada,
-    calculateOptimalDeduction: formData.calcularDeduccionOptima,
-  });
+export const ResultsSection = ({ formData, result }: ResultsSectionProps) => {
 
   const getBracketColor = (rate: number) => {
     if (rate === 0) return "text-green-600 bg-green-100";
@@ -43,7 +37,7 @@ export const ResultsSection = ({ formData }: ResultsSectionProps) => {
   };
 
   return (
-    <section className="py-20 px-4 bg-gradient-card">
+    <section id="results-section" className="py-20 px-4 bg-gradient-card">
       <div className="container mx-auto max-w-5xl">
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-4">
