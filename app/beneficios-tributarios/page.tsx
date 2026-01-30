@@ -1,20 +1,21 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, CheckCircle2, FileText, Zap, Leaf, TrendingDown, Building2, Car } from "lucide-react";
-import { Link } from "react-router-dom";
-import ecoLogo from "@/assets/eco-logo.png";
+import Link from "next/link";
 
-const BeneficiosTributarios = () => {
+export default function BeneficiosTributarios() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-gradient-hero text-white py-6 sticky top-0 z-50">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img src={ecoLogo} alt="Logo" className="w-10 h-10" />
+            <img src="/eco-logo.png" alt="Logo" className="w-10 h-10" />
             <h1 className="text-xl font-bold">Beneficios Tributarios</h1>
           </div>
-          <Link to="/">
+          <Link href="/">
             <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al inicio
@@ -31,10 +32,10 @@ const BeneficiosTributarios = () => {
             <span className="text-sm font-medium">Ley 1715 de 2014</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            📘 Beneficios Tributarios
+            Beneficios Tributarios
           </h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            La Ley 1715 de 2014 tiene por objeto promover el desarrollo y la utilización de fuentes no convencionales de energía, 
+            La Ley 1715 de 2014 tiene por objeto promover el desarrollo y la utilización de fuentes no convencionales de energía,
             la gestión eficiente de la energía, los sistemas de medición inteligente y la reducción de emisiones de gases de efecto invernadero en Colombia.
           </p>
         </div>
@@ -46,8 +47,8 @@ const BeneficiosTributarios = () => {
         <Card className="mb-8 shadow-medium">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
-              <span className="text-3xl">🧩</span>
-              1. ¿Qué incentivos tributarios contempla la Ley 1715?
+              <span className="text-3xl">1.</span>
+              ¿Qué incentivos tributarios contempla la Ley 1715?
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -122,8 +123,8 @@ const BeneficiosTributarios = () => {
         <Card className="mb-8 shadow-medium">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
-              <span className="text-3xl">📋</span>
-              2. Ámbito de aplicación de la ley
+              <span className="text-3xl">2.</span>
+              Ámbito de aplicación de la ley
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -156,18 +157,18 @@ const BeneficiosTributarios = () => {
         <Card className="mb-8 shadow-medium">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
-              <span className="text-3xl">🛠</span>
-              3. Requisitos generales para aplicar los beneficios
+              <span className="text-3xl">3.</span>
+              Requisitos generales para aplicar los beneficios
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-6">Para acceder a estos incentivos tributarios normalmente es necesario:</p>
-            
+
             <div className="space-y-4">
               <div className="border rounded-lg p-5">
                 <h4 className="font-bold text-lg flex items-center gap-2 mb-3">
                   <FileText className="w-5 h-5 text-primary" />
-                  📌 a. Certificación de Beneficio Ambiental
+                  a. Certificación de Beneficio Ambiental
                 </h4>
                 <p className="text-muted-foreground">
                   Obtener la certificación que avale la inversión como proyecto de FNCE o de gestión eficiente de energía (GEE), emitida por la autoridad ambiental competente.
@@ -177,7 +178,7 @@ const BeneficiosTributarios = () => {
               <div className="border rounded-lg p-5">
                 <h4 className="font-bold text-lg flex items-center gap-2 mb-3">
                   <FileText className="w-5 h-5 text-primary" />
-                  📌 b. Documentación técnica
+                  b. Documentación técnica
                 </h4>
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-center gap-2">
@@ -206,8 +207,8 @@ const BeneficiosTributarios = () => {
         <Card className="mb-8 shadow-medium bg-gradient-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
-              <span className="text-3xl">🧾</span>
-              4. Consideraciones clave
+              <span className="text-3xl">4.</span>
+              Consideraciones clave
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -238,16 +239,16 @@ const BeneficiosTributarios = () => {
         <Card className="mb-8 shadow-medium border-2 border-primary/30 bg-primary/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
-              <span className="text-3xl">📍</span>
-              5. Beneficios tributarios relevantes para vehículos eléctricos
+              <span className="text-3xl">5.</span>
+              Beneficios tributarios relevantes para vehículos eléctricos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-start gap-4 mb-6">
               <Car className="w-12 h-12 text-primary flex-shrink-0" />
               <p className="text-muted-foreground">
-                Aunque la Ley 1715 no está escrita específicamente para vehículos eléctricos, muchas inversiones en tecnologías limpias y eficiencia energética 
-                (como infraestructura de carga o vehículos eléctricos cuando están incluidos en políticas de eficiencia/estímulo ambiental), 
+                Aunque la Ley 1715 no está escrita específicamente para vehículos eléctricos, muchas inversiones en tecnologías limpias y eficiencia energética
+                (como infraestructura de carga o vehículos eléctricos cuando están incluidos en políticas de eficiencia/estímulo ambiental),
                 pueden acogerse a estos beneficios siempre que:
               </p>
             </div>
@@ -276,7 +277,7 @@ const BeneficiosTributarios = () => {
             <p className="text-lg mb-6 text-white/90 max-w-2xl mx-auto">
               Usa nuestra calculadora para estimar cuánto podrías ahorrar en impuestos con la compra de tu vehículo eléctrico.
             </p>
-            <Link to="/">
+            <Link href="/">
               <Button
                 size="lg"
                 className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
@@ -299,6 +300,4 @@ const BeneficiosTributarios = () => {
       </footer>
     </div>
   );
-};
-
-export default BeneficiosTributarios;
+}
