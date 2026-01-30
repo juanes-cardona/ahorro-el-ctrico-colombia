@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -27,9 +29,10 @@ export type FormData = z.infer<typeof formSchema>;
 
 interface CalculatorFormProps {
   onSubmit: (data: FormData) => void;
+  isLoading?: boolean;
 }
 
-export const CalculatorForm = ({ onSubmit }: CalculatorFormProps) => {
+export const CalculatorForm = ({ onSubmit, isLoading }: CalculatorFormProps) => {
   const [formData, setFormData] = useState<Partial<FormData>>({
     otrasDeducciones: 0,
     calcularDeduccionOptima: true,
@@ -318,8 +321,8 @@ export const CalculatorForm = ({ onSubmit }: CalculatorFormProps) => {
                   )}
                 </div>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Calcular Beneficio Tributario
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                  {isLoading ? "Calculando..." : "Calcular Beneficio Tributario"}
                 </Button>
               </form>
             </CardContent>
