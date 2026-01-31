@@ -10,11 +10,14 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
  */
 async function getAuthClient() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const privateKeyBase64 = process.env.GOOGLE_PRIVATE_KEY_BASE64;
 
-  if (!email || !privateKey) {
+  if (!email || !privateKeyBase64) {
     throw new Error('Google Sheets credentials not configured');
   }
+
+  // Decode base64-encoded private key to handle newlines properly
+  const privateKey = Buffer.from(privateKeyBase64, 'base64').toString('utf-8');
 
   const auth = new google.auth.GoogleAuth({
     credentials: {
