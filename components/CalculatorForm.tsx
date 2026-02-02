@@ -88,7 +88,7 @@ export const CalculatorForm = ({ onSubmit, isLoading }: CalculatorFormProps) => 
 
   return (
     <TooltipProvider>
-      <section id="calculator" className="py-20 px-4 bg-muted/30">
+      <section id="calculator" className="py-12 sm:py-20 px-2 sm:px-4 bg-muted/30">
         <div className="container mx-auto max-w-3xl">
           <Card className="shadow-medium">
             <CardHeader className="text-center">
